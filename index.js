@@ -2,43 +2,40 @@ const mineflayer = require('mineflayer')
 const express = require('express')
 const app = express()
 
-// Render'ın uyumaması için web portu
 const port = process.env.PORT || 3000
-app.get('/', (req, res) => res.send('Bot Sistemi Aktif!'))
-app.listen(port, () => console.log(`Web sunucusu ${port} portunda dinleniyor.`))
+app.get('/', (req, res) => res.send('AntiAFK Botu Hazır!'))
+app.listen(port, () => console.log(`Web sunucusu ${port} portunda aktif.`))
 
 function createBot() {
     const bot = mineflayer.createBot({
-        host: 'turbolumc.mcsh.io', // Senin verdiğin yeni adres
-        port: 12010,               // Loglarda gördüğüm port
+        host: 'turbolumc.mcsh.io',
+        port: 25565,
         username: 'AntiAFK_Bot',
-        version: false,            // Sunucu sürümünü otomatik algılar
-        checkTimeoutInterval: 90000 // Bağlantı kopmalarına karşı daha sabırlı olur
+        version: false, // Sunucu sürümünü (1.21.1) otomatik algılar
+        checkTimeoutInterval: 60000 
     })
 
     bot.on('spawn', () => {
-        console.log('✅ Bot başarıyla giriş yaptı ve spawn oldu!')
+        console.log('✅ Bot sunucuya girdi!')
         
-        // Botun atılmaması için görünmezlik ve güvenli bölgeye ışınlanma
-        bot.chat('/effect give AntiAFK_Bot invisibility infinite 255 true')
-        bot.chat('/tp AntiAFK_Bot 0 150 0') // Spawn merkezinin yukarısı genellikle güvenlidir
+        // Botu dünyanın ucundan kurtarıp güvenli bir yere çekelim
+        bot.chat('/tp AntiAFK_Bot 0 100 0') 
         
-        // Periyodik hareket (Kafasını çevirip zıplar, böylece sunucu botu canlı sayar)
+        // Botu hayatta tutmak için küçük hareketler
         setInterval(() => {
             bot.setControlState('jump', true)
             setTimeout(() => bot.setControlState('jump', false), 500)
-            bot.look(bot.entity.yaw + 0.1, bot.entity.pitch)
-        }, 20000)
+            // Kafayı hafifçe oynatmak paket akışını sağlar
+            bot.look(bot.entity.yaw + 0.2, bot.entity.pitch)
+        }, 15000)
     })
 
     bot.on('end', (reason) => {
-        console.log(`⚠️ Bağlantı kesildi: ${reason}. 20 saniye sonra tekrar denenecek...`)
+        console.log(`⚠️ Bağlantı koptu (${reason}). 20 saniye sonra tekrar bağlanıyor...`)
         setTimeout(createBot, 20000)
     })
 
-    bot.on('error', (err) => {
-        console.log(`❌ Hata: ${err.message}`)
-    })
+    bot.on('error', (err) => console.log('Hata:', err))
 }
 
 createBot()
