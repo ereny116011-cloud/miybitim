@@ -8,7 +8,7 @@ app.listen(port, () => console.log(`Server ${port} portunda hazır.`))
 
 function createBot() {
     const bot = mineflayer.createBot({
-        host: 'turbolumc.mcserver.host', // Burayı tekrar kendi IP'nle kontrol et
+        host: 'turbolumc.mcsh.io', // Burayı tekrar kendi IP'nle kontrol et
         port: 25565,
         username: 'AntiAFK_Bot', 
         // Sürümü 'false' yaparsak sunucu neyse ona ayak uydurur
