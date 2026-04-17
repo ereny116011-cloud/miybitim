@@ -10,7 +10,7 @@ function createBot() {
     const bot = mineflayer.createBot({
         host: 'turbolumc.mcsh.io',
         port: 25565,
-        username: 'eren',
+        username: 'doblofar',
         version: false, // Sunucu sürümünü (1.21.1) otomatik algılar
         checkTimeoutInterval: 60000 
     })
@@ -19,7 +19,7 @@ function createBot() {
         console.log('✅ Bot sunucuya girdi!')
         
         // Botu dünyanın ucundan kurtarıp güvenli bir yere çekelim
-        bot.chat('/tp eren 0 100 0') 
+        bot.chat('/tp doblofar 0 100 0') 
         
         // Botu hayatta tutmak için küçük hareketler
         setInterval(() => {
