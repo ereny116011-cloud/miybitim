@@ -19,7 +19,7 @@ function createBot() {
         console.log('✅ Bot sunucuya girdi!')
         
         // Botu dünyanın ucundan kurtarıp güvenli bir yere çekelim
-        bot.chat('/tp AntiAFK_Bot 0 100 0') 
+        bot.chat('/tp eren 0 100 0') 
         
         // Botu hayatta tutmak için küçük hareketler
         setInterval(() => {
