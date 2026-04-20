@@ -2,7 +2,7 @@ const mineflayer = require('mineflayer');
 
 // Bot Ayarları
 const bot = mineflayer.createBot({
-    host: 'SUNUCU_IP_ADRESIN', // Buraya kendi sunucu IP'ni yaz
+    host: 'turbolumc.mcsh.io', // Buraya kendi sunucu IP'ni yaz
     port: 25565,                // Portun farklıysa burayı değiştir
     username: 'doblofar',       // Senin yeni efsane isim
     version: '1.21.1',          // Sunucu sürümünle uyumlu yap
