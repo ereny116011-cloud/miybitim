@@ -10,7 +10,7 @@ http.createServer((req, res) => {
 
 // 2. BOT AYARLARI
 const bot = mineflayer.createBot({
-    host: 'turbolumc.mcsh.io',
+    host: 'turbolu.mcsh.io',
     username: 'doblofar',
     version: '1.21.1', // 1.21.1 olarak ayarlandı
     viewDistance: 'tiny',
