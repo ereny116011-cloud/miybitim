@@ -21,18 +21,24 @@ app.listen(PORT, () => {
     console.log(`==> Web veri köprüsü ${PORT} portunda aktif.`);
 });
 
+// NLOGIN GEÇİŞLERİ İÇİN FİZİK VE STORAGE ÖZELLİKLERİNİ AKTİF ETTİK
 const bot = mineflayer.createBot({
-    host: 'turbolular.mcsh.io',
+    host: 'turbolu.mcsh.io',
     username: 'doblofar',
-    version: '1.21.1', 
+    version: false, // Sunucu sürümünü otomatik algılar
     viewDistance: 'tiny',
-    storage: false,
-    physicsEnabled: false 
+    storage: true,   // Dünyalar arası geçiş paketlerini hafızada tutması için şart
+    physicsEnabled: true // Aktarım portalları ve yerçekimi paketleri için şart
+});
+
+bot.on('login', () => {
+    console.log("==> doblofar nLogin lobi kapısına ulaştı.");
 });
 
 bot.on('spawn', () => {
-    console.log("==> doblofar oyuna girdi!");
+    console.log("==> doblofar dünyada doğdu, giriş işlemleri başlatılıyor...");
 
+    // nLogin lobi korumasına takılmamak için komut sürelerini optimize ettik
     setTimeout(() => {
         bot.chat('/register doblofar doblofar');
         console.log("==> Kayit komutu gonderildi.");
@@ -40,6 +46,15 @@ bot.on('spawn', () => {
         setTimeout(() => {
             bot.chat('/login doblofar doblofar');
             console.log("==> Giris komutu gonderildi.");
+
+            // GİRİŞ YAPTIKTAN 3 SANİYE SONRA ANA SUNUCUYA GEÇİŞİ ZORLA
+            setTimeout(() => {
+                // Eğer sunucuda doğrudan lobi aktarımı yoksa el ile ana dünyaya geçmeyi dener
+                bot.chat('/server survival'); 
+                bot.chat('/main');
+                console.log("==> Ana sunucuya geçiş komutları zorlandı.");
+            }, 3000);
+
         }, 3000); 
     }, 5000); 
 
@@ -57,27 +72,23 @@ bot.on('spawn', () => {
             bot.world.clearColumnCache(); 
             console.log("==> Dunya onbellegi temizlendi.");
         }
-        
         if (global.gc) {
             global.gc(); 
         }
     }, 120000);
 });
 
-// HEM SOHBET HEM DE SISTEM MESAJLARINI AYRI AYRI YAKALAYAN GÜNCEL KISIM
+// SPARK MESAJ AYRIŞTIRICI
 function veriAyristir(mesaj) {
-    // TPS Bilgisi (Örn: TPS from Last 1m: 19.95 veya Last 1m: 20.0)
     if (mesaj.includes("Last 1m:") || mesaj.includes("TPS from Last 1m:")) {
         try {
             const tpsKismi = mesaj.split("1m:")[1].split(",")[0].trim();
-            // Renk kodları veya ekstra semboller varsa temizle
             sunucuKaynaklari.tps = tpsKismi.replace(/[^\d.]/g, ''); 
         } catch (e) {
             console.log("TPS ayrıştırılamadı.");
         }
     }
 
-    // RAM Bilgisi (Örn: Memory: 2.1 GB / 4.0 GB (52%))
     if (mesaj.includes("Memory:") || mesaj.includes("Hafıza:")) {
         try {
             const ramKismi = mesaj.split("Memory:")[1] ? mesaj.split("Memory:")[1].trim() : mesaj.split("Hafıza:")[1].trim();
@@ -88,19 +99,17 @@ function veriAyristir(mesaj) {
     }
 }
 
-// 1. Kanat: Normal Sohbet Mesajlarını Dinle
 bot.on('message', (jsonMsg) => {
     veriAyristir(jsonMsg.toString());
 });
 
-// 2. Kanat: Spark gibi eklentilerin bota özel attığı Sistem Mesajlarını Dinle
 bot.on('systemChat', (jsonMsg) => {
     veriAyristir(jsonMsg.toString());
 });
 
-bot.on('error', (err) => console.log('Hata:', err.message));
-bot.on('kicked', (reason) => console.log('Atildi:', JSON.stringify(reason)));
+bot.on('error', (err) => console.log('Bot Hatası:', err.message));
+bot.on('kicked', (reason) => console.log('Bot Sunucudan Atıldı. Sebep:', JSON.stringify(reason)));
 bot.on('end', () => {
-    console.log("Baglanti koptu. 10 saniye sonra restart...");
+    console.log("Bağlantı tamamen koptu. 10 saniye sonra yeniden denenecek...");
     setTimeout(() => process.exit(1), 10000);
 });
