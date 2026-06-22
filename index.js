@@ -24,7 +24,7 @@ app.listen(PORT, () => {
 // NLOGIN GEÇİŞLERİ İÇİN FİZİK VE STORAGE ÖZELLİKLERİNİ AKTİF ETTİK
 const bot = mineflayer.createBot({
     host: 'turbolu.mcsh.io',
-    username: 'doblofar',
+    username: 'Friend',
     version: false, // Sunucu sürümünü otomatik algılar
     viewDistance: 'tiny',
     storage: true,   // Dünyalar arası geçiş paketlerini hafızada tutması için şart
