@@ -29,7 +29,7 @@ function resmiOfflineUUID(isim) {
 const botIsmi = 'Kaan_Oyunda'; 
 
 const bot = mineflayer.createBot({
-    host: 'turbolu.mcsh.io',
+    host: 'turbolular.mcsh.io',
     username: botIsmi,
     version: '1.21.1',       
     viewDistance: 'tiny',
