@@ -1,21 +1,18 @@
 const mineflayer = require('mineflayer');
 const express = require('express');
-const cors = require('cors'); // Web sitesinin sorunsuz bağlanması için şart
+const cors = require('cors');
 const app = express();
 
-// Render için port ayarı (Render otomatik 10000 portunu atar veya process.env.PORT kullanır)
 const PORT = process.env.PORT || 10000;
 
 app.use(cors());
 
-// Web sitesinin çekeceği canlı verilerin varsayılan değerleri
 let sunucuKaynaklari = {
     tps: "Hesaplanıyor...",
     ram: "Hesaplanıyor...",
     status: "Açık"
 };
 
-// Sitenin veriyi çekeceği endpoint (Ana sayfa)
 app.get('/', (req, res) => {
     res.json(sunucuKaynaklari);
 });
@@ -24,9 +21,8 @@ app.listen(PORT, () => {
     console.log(`==> Web veri köprüsü ${PORT} portunda aktif.`);
 });
 
-// BOT AYARLARI
 const bot = mineflayer.createBot({
-    host: 'turbolu.mcsh.io',
+    host: 'turbolular.mcsh.io',
     username: 'doblofar',
     version: '1.21.1', 
     viewDistance: 'tiny',
@@ -34,11 +30,9 @@ const bot = mineflayer.createBot({
     physicsEnabled: false 
 });
 
-// OTOMATIK GIRIS VE PERFORMANS DINLEME
 bot.on('spawn', () => {
     console.log("==> doblofar oyuna girdi!");
 
-    // KOMUT SIRALAMASI (Kayıt ve Giriş)
     setTimeout(() => {
         bot.chat('/register doblofar doblofar');
         console.log("==> Kayit komutu gonderildi.");
@@ -49,7 +43,7 @@ bot.on('spawn', () => {
         }, 3000); 
     }, 5000); 
 
-    // Her 15 saniyede bir sunucudan gizlice performans bilgilerini iste
+    // Her 15 saniyede bir Spark verilerini iste
     setInterval(() => {
         if (bot) {
             bot.chat('/spark tps');
@@ -57,7 +51,7 @@ bot.on('spawn', () => {
         }
     }, 15000);
 
-    // Her 2 dakikada bir RAM ve Dünya temizliği
+    // Her 2 dakikada bir temizlik yap
     setInterval(() => {
         if (bot.world && bot.world.columnCount > 0) {
             bot.world.clearColumnCache(); 
@@ -70,32 +64,40 @@ bot.on('spawn', () => {
     }, 120000);
 });
 
-// SUNUCUDAN GELEN SPARK MESAJLARINI YAKALAMA
-bot.on('message', (jsonMsg) => {
-    const mesaj = jsonMsg.toString();
-
-    // TPS Bilgisini Ayıkla (Örn: TPS from Last 1m: 19.95)
-    if (mesaj.includes("TPS from Last 1m:")) {
+// HEM SOHBET HEM DE SISTEM MESAJLARINI AYRI AYRI YAKALAYAN GÜNCEL KISIM
+function veriAyristir(mesaj) {
+    // TPS Bilgisi (Örn: TPS from Last 1m: 19.95 veya Last 1m: 20.0)
+    if (mesaj.includes("Last 1m:") || mesaj.includes("TPS from Last 1m:")) {
         try {
             const tpsKismi = mesaj.split("1m:")[1].split(",")[0].trim();
-            sunucuKaynaklari.tps = tpsKismi;
+            // Renk kodları veya ekstra semboller varsa temizle
+            sunucuKaynaklari.tps = tpsKismi.replace(/[^\d.]/g, ''); 
         } catch (e) {
             console.log("TPS ayrıştırılamadı.");
         }
     }
 
-    // RAM Bilgisini Ayıkla (Örn: Memory: 2.1 GB / 4.0 GB (52%))
-    if (mesaj.includes("Memory:")) {
+    // RAM Bilgisi (Örn: Memory: 2.1 GB / 4.0 GB (52%))
+    if (mesaj.includes("Memory:") || mesaj.includes("Hafıza:")) {
         try {
-            const ramKismi = mesaj.split("Memory:")[1].trim();
+            const ramKismi = mesaj.split("Memory:")[1] ? mesaj.split("Memory:")[1].trim() : mesaj.split("Hafıza:")[1].trim();
             sunucuKaynaklari.ram = ramKismi;
         } catch (e) {
             console.log("RAM ayrıştırılamadı.");
         }
     }
+}
+
+// 1. Kanat: Normal Sohbet Mesajlarını Dinle
+bot.on('message', (jsonMsg) => {
+    veriAyristir(jsonMsg.toString());
 });
 
-// HATA YÖNETİMİ
+// 2. Kanat: Spark gibi eklentilerin bota özel attığı Sistem Mesajlarını Dinle
+bot.on('systemChat', (jsonMsg) => {
+    veriAyristir(jsonMsg.toString());
+});
+
 bot.on('error', (err) => console.log('Hata:', err.message));
 bot.on('kicked', (reason) => console.log('Atildi:', JSON.stringify(reason)));
 bot.on('end', () => {
