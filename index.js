@@ -1,6 +1,7 @@
 const mineflayer = require('mineflayer');
 const express = require('express');
 const cors = require('cors');
+const crypto = require('crypto');
 const app = express();
 
 const PORT = process.env.PORT || 10000;
@@ -21,42 +22,61 @@ app.listen(PORT, () => {
     console.log(`==> Web veri köprüsü ${PORT} portunda aktif.`);
 });
 
-// NLOGIN GEÇİŞLERİ İÇİN FİZİK VE STORAGE ÖZELLİKLERİNİ AKTİF ETTİK
+// TLauncher / Orijinal Olmayan İstemcilerin ürettiği resmi Minecraft UUID algoritması
+function resmiOfflineUUID(isim) {
+    return crypto.createHash('md5').update("OfflinePlayer:" + isim).digest("hex").replace(/(.{8})(.{4})(.{4})(.{4})(.{12})/, "$1-$2-$3-$4-$5");
+}
+
+const botIsmi = 'doblofar_bot';
+
 const bot = mineflayer.createBot({
-    host: 'turbolu.mcsh.io',
-    username: 'Friend',
-    version: false, // Sunucu sürümünü otomatik algılar
+    host: 'turbolular.mcsh.io',
+    username: botIsmi,
+    version: '1.21.1',       
     viewDistance: 'tiny',
-    storage: true,   // Dünyalar arası geçiş paketlerini hafızada tutması için şart
-    physicsEnabled: true // Aktarım portalları ve yerçekimi paketleri için şart
+    storage: true,           
+    physicsEnabled: true,
+    // GİZLİLİK KATMANI: Bot olduğunu tamamen saklayan paket ayarları
+    clientIdentity: {
+        uuid: resmiOfflineUUID(botIsmi)
+    },
+    brand: 'vanilla' // Sunucuya "Ben Mineflayer'ım" yerine "Ben normal Minecraft'ım" paketi gönderir
 });
 
 bot.on('login', () => {
-    console.log("==> doblofar nLogin lobi kapısına ulaştı.");
+    console.log(`==> ${botIsmi} normal oyuncu maskesiyle sunucuya sızdı.`);
 });
 
 bot.on('spawn', () => {
-    console.log("==> doblofar dünyada doğdu, giriş işlemleri başlatılıyor...");
+    console.log(`==> ${botIsmi} dünyada doğdu.`);
 
-    // nLogin lobi korumasına takılmamak için komut sürelerini optimize ettik
     setTimeout(() => {
-        bot.chat('/register doblofar doblofar');
+        bot.chat('/register doblofar123 doblofar123');
         console.log("==> Kayit komutu gonderildi.");
 
         setTimeout(() => {
-            bot.chat('/login doblofar doblofar');
+            bot.chat('/login doblofar123 doblofar123');
             console.log("==> Giris komutu gonderildi.");
 
-            // GİRİŞ YAPTIKTAN 3 SANİYE SONRA ANA SUNUCUYA GEÇİŞİ ZORLA
             setTimeout(() => {
-                // Eğer sunucuda doğrudan lobi aktarımı yoksa el ile ana dünyaya geçmeyi dener
                 bot.chat('/server survival'); 
                 bot.chat('/main');
-                console.log("==> Ana sunucuya geçiş komutları zorlandı.");
+                console.log("==> Aktarım komutları gönderildi.");
             }, 3000);
 
         }, 3000); 
     }, 5000); 
+
+    // --- İNSANİ DAVRANIŞ SİMÜLASYONU ---
+    // Botun sunucuda tamamen AFK kalıp şüphe çekmesini önlemek için, 
+    // her 8-12 saniyede bir kafasını etrafta bir şeyler izliyormuş gibi hafifçe çevirir.
+    setInterval(() => {
+        if (bot && bot.entity) {
+            const rastgeleYaw = (Math.random() * 360 - 180) * (Math.PI / 180);
+            const rastgelePitch = (Math.random() * 40 - 20) * (Math.PI / 180); // Çok fazla yukarı/aşağı bakmasın
+            bot.look(rastgeleYaw, rastgelePitch, true);
+        }
+    }, Math.floor(Math.random() * 4000) + 8000);
 
     // Her 15 saniyede bir Spark verilerini iste
     setInterval(() => {
@@ -70,7 +90,6 @@ bot.on('spawn', () => {
     setInterval(() => {
         if (bot.world && bot.world.columnCount > 0) {
             bot.world.clearColumnCache(); 
-            console.log("==> Dunya onbellegi temizlendi.");
         }
         if (global.gc) {
             global.gc(); 
@@ -107,9 +126,8 @@ bot.on('systemChat', (jsonMsg) => {
     veriAyristir(jsonMsg.toString());
 });
 
-bot.on('error', (err) => console.log('Bot Hatası:', err.message));
-bot.on('kicked', (reason) => console.log('Bot Sunucudan Atıldı. Sebep:', JSON.stringify(reason)));
+bot.on('error', (err) => console.log('Hata:', err.message));
+bot.on('kicked', (reason) => console.log('Atildi. Sebep:', JSON.stringify(reason)));
 bot.on('end', () => {
-    console.log("Bağlantı tamamen koptu. 10 saniye sonra yeniden denenecek...");
     setTimeout(() => process.exit(1), 10000);
 });
