@@ -26,7 +26,7 @@ app.listen(PORT, () => {
 
 // BOT AYARLARI
 const bot = mineflayer.createBot({
-    host: 'turbolular.mcsh.io',
+    host: 'turbolu.mcsh.io',
     username: 'doblofar',
     version: '1.21.1', 
     viewDistance: 'tiny',
