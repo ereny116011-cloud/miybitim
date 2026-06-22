@@ -1,12 +1,14 @@
 {
-  "name": "mc-afk-bot",
+  "name": "turbolu-bot",
   "version": "1.0.0",
+  "description": "7/24 TurboluMC Aktif Kalma Botu ve Canlı Veri Köprüsü",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node --expose-gc --max-old-space-size=500 index.js"
   },
   "dependencies": {
-    "mineflayer": "^4.10.0",
-    "express": "^4.18.2"
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "mineflayer": "^4.22.0"
   }
 }
