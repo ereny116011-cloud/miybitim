@@ -22,12 +22,13 @@ app.listen(PORT, () => {
     console.log(`==> Web veri köprüsü ${PORT} portunda aktif.`);
 });
 
-// TLauncher / Orijinal Olmayan İstemcilerin ürettiği resmi Minecraft UUID algoritması
+// Resmi Minecraft Offline UUID algoritması
 function resmiOfflineUUID(isim) {
     return crypto.createHash('md5').update("OfflinePlayer:" + isim).digest("hex").replace(/(.{8})(.{4})(.{4})(.{4})(.{12})/, "$1-$2-$3-$4-$5");
 }
 
-const botIsmi = 'doblofar_bot';
+// İsmi tamamen bağımsız ve sıradan bir oyuncu ismi yaptık (UUID Çakışmasını Sıfırlar)
+const botIsmi = 'Kaan_Oyunda'; 
 
 const bot = mineflayer.createBot({
     host: 'turbolular.mcsh.io',
@@ -36,26 +37,26 @@ const bot = mineflayer.createBot({
     viewDistance: 'tiny',
     storage: true,           
     physicsEnabled: true,
-    // GİZLİLİK KATMANI: Bot olduğunu tamamen saklayan paket ayarları
     clientIdentity: {
         uuid: resmiOfflineUUID(botIsmi)
     },
-    brand: 'vanilla' // Sunucuya "Ben Mineflayer'ım" yerine "Ben normal Minecraft'ım" paketi gönderir
+    brand: 'vanilla' 
 });
 
 bot.on('login', () => {
-    console.log(`==> ${botIsmi} normal oyuncu maskesiyle sunucuya sızdı.`);
+    console.log(`==> ${botIsmi} normal oyuncu maskesiyle sunucuya girdi.`);
 });
 
 bot.on('spawn', () => {
     console.log(`==> ${botIsmi} dünyada doğdu.`);
 
     setTimeout(() => {
-        bot.chat('/register doblofar123 doblofar123');
+        // Yeni isim için tertemiz kayıt komutları (Şifreyi de benzersiz yaptık)
+        bot.chat('/register turboKaan99 turboKaan99');
         console.log("==> Kayit komutu gonderildi.");
 
         setTimeout(() => {
-            bot.chat('/login doblofar123 doblofar123');
+            bot.chat('/login turboKaan99 turboKaan99');
             console.log("==> Giris komutu gonderildi.");
 
             setTimeout(() => {
@@ -67,13 +68,11 @@ bot.on('spawn', () => {
         }, 3000); 
     }, 5000); 
 
-    // --- İNSANİ DAVRANIŞ SİMÜLASYONU ---
-    // Botun sunucuda tamamen AFK kalıp şüphe çekmesini önlemek için, 
-    // her 8-12 saniyede bir kafasını etrafta bir şeyler izliyormuş gibi hafifçe çevirir.
+    // İnsani kafayı çevirme simülasyonu
     setInterval(() => {
         if (bot && bot.entity) {
             const rastgeleYaw = (Math.random() * 360 - 180) * (Math.PI / 180);
-            const rastgelePitch = (Math.random() * 40 - 20) * (Math.PI / 180); // Çok fazla yukarı/aşağı bakmasın
+            const rastgelePitch = (Math.random() * 40 - 20) * (Math.PI / 180);
             bot.look(rastgeleYaw, rastgelePitch, true);
         }
     }, Math.floor(Math.random() * 4000) + 8000);
