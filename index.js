@@ -26,10 +26,10 @@ function resmiOfflineUUID(isim) {
     return crypto.createHash('md5').update("OfflinePlayer:" + isim).digest("hex").replace(/(.{8})(.{4})(.{4})(.{4})(.{12})/, "$1-$2-$3-$4-$5");
 }
 
-const botIsmi = 'Kaan_Oyunda'; 
+const botIsmi = 'friendlyboy'; 
 
 const bot = mineflayer.createBot({
-    host: 'turbolular.mcsh.io',
+    host: 'turbolumc.aternos.me',
     username: botIsmi,
     version: '1.21.1',       
     viewDistance: 'tiny',
